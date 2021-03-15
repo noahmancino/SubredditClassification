@@ -1,7 +1,6 @@
 '''
-Scrapes last 1000 post titles from specified subreddits. The script will then create two files for each subreddit,
-[subreddit name].train which contains 800 of these post titles separated by newlines and [subreddit name].test
-which contains the remaining 200.
+Scrapes last 1000 post titles from specified subreddits. The script will then a file each subreddit, with the name of
+file being the name of the subreddit, consisting of post titles seperated by newlines.
 
 Usage:
 python PostScraper.py subredditname1 subredditname2 ...
@@ -11,7 +10,6 @@ Requires that an an ini file with valid praw credentials named 'credentials.ini'
 '''
 
 import praw
-import random
 import time
 import sys
 import configparser
@@ -32,17 +30,9 @@ reddit = praw.Reddit(
 for subreddit in to_scrape:
     recent_posts = reddit.subreddit(subreddit).new(limit=1000)
     recent_posts = [recent_post.title for recent_post in recent_posts]
-    random.shuffle(recent_posts)
-    training_posts = recent_posts[800:]
-    testing_posts = recent_posts[:800]
-    with open(subreddit + '.train', 'w') as train_file:
-        for post in training_posts:
+    with open(subreddit, 'w') as train_file:
+        for post in recent_posts:
             train_file.write(post + '\n')
 
     # sleeping for API rate limit reasons
-    time.sleep(10)
-    with open(subreddit + '.test', 'w') as test_file:
-        for post in testing_posts:
-            test_file.write(post + '\n')
-
-    time.sleep(10)
+    time.sleep(120)
